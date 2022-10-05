@@ -1,8 +1,10 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Text;
+using TMPro;
 using UnityEngine;
 using UnityEngine.Networking;
+using UnityEngine.UI;
 
 public class NetworkClient : MonoBehaviour
 {
@@ -17,6 +19,14 @@ public class NetworkClient : MonoBehaviour
     bool isConnected = false;
     int ourClientID;
 
+    [SerializeField]
+    private TMP_InputField LoginInputField;
+
+    [SerializeField]
+    private TMP_InputField PasswordInputField;
+    [SerializeField]
+    private Toggle SignUpToggle;
+
     // Start is called before the first frame update
     void Start()
     {
@@ -26,9 +36,18 @@ public class NetworkClient : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if (Input.GetKeyDown(KeyCode.S))
-            SendMessageToHost("Hello from client");
+        UpdateNetworkConnection();
+    }
 
+    public void SendLogIn()
+    {
+        SendMessageToHost("LogIn," + LoginInputField.text + "," + PasswordInputField.text);
+        UpdateNetworkConnection();
+    }
+
+    public void ChangeLoginToSignUp()
+    {
+        SendMessageToHost("SignUp");
         UpdateNetworkConnection();
     }
 
@@ -52,6 +71,7 @@ public class NetworkClient : MonoBehaviour
                     break;
                 case NetworkEventType.DataEvent:
                     string msg = Encoding.Unicode.GetString(recBuffer, 0, dataSize);
+                    Debug.Log(msg);
                     ProcessRecievedMsg(msg, recConnectionID);
                     //Debug.Log("got msg = " + msg);
                     break;
@@ -79,7 +99,7 @@ public class NetworkClient : MonoBehaviour
             hostID = NetworkTransport.AddHost(topology, 0);
             Debug.Log("Socket open.  Host ID = " + hostID);
 
-            connectionID = NetworkTransport.Connect(hostID, "192.168.2.53", socketPort, 0, out error); // server is local on network
+            connectionID = NetworkTransport.Connect(hostID, "10.0.255.221", socketPort, 0, out error); // server is local on network
 
             if (error == 0)
             {
