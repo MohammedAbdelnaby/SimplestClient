@@ -20,6 +20,9 @@ public class NetworkClient : MonoBehaviour
     int ourClientID;
 
     [SerializeField]
+    private TMP_Text text;
+
+    [SerializeField]
     private TMP_InputField LoginInputField;
 
     [SerializeField]
@@ -41,13 +44,7 @@ public class NetworkClient : MonoBehaviour
 
     public void SendLogIn()
     {
-        SendMessageToHost("LogIn," + LoginInputField.text + "," + PasswordInputField.text);
-        UpdateNetworkConnection();
-    }
-
-    public void ChangeLoginToSignUp()
-    {
-        SendMessageToHost("SignUp");
+        SendMessageToHost(SignUpToggle.isOn + "," + LoginInputField.text + "," + PasswordInputField.text);
         UpdateNetworkConnection();
     }
 
@@ -125,6 +122,27 @@ public class NetworkClient : MonoBehaviour
     private void ProcessRecievedMsg(string msg, int id)
     {
         Debug.Log("msg recieved = " + msg + ".  connection id = " + id);
+
+        switch (msg)
+        {
+            case "Account Created":
+                text.text = msg;
+                break;
+            case "Username is already used":
+                text.text = msg;
+                break;
+            case "Logged in!":
+                text.text = msg;
+                break;
+            case "Wrong Username":
+                text.text = msg;
+                break;
+            case "Wrong Password":
+                text.text = msg;
+                break;
+            default:
+                break;
+        }
     }
 
     public bool IsConnected()
