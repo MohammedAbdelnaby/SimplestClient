@@ -96,7 +96,7 @@ public class NetworkClient : MonoBehaviour
             hostID = NetworkTransport.AddHost(topology, 0);
             Debug.Log("Socket open.  Host ID = " + hostID);
 
-            connectionID = NetworkTransport.Connect(hostID, "10.0.255.221", socketPort, 0, out error); // server is local on network
+            connectionID = NetworkTransport.Connect(hostID, "192.168.2.58", socketPort, 0, out error); // server is local on network
 
             if (error == 0)
             {
@@ -125,14 +125,17 @@ public class NetworkClient : MonoBehaviour
 
         switch (msg)
         {
-            case "Account Created":
+            case "Account Created, Login now":
                 text.text = msg;
+                LoginInputField.text = "";
+                PasswordInputField.text = "";
                 break;
             case "Username is already used":
                 text.text = msg;
                 break;
             case "Logged in!":
                 text.text = msg;
+                stateMachine.Instance.Scene = 2;
                 break;
             case "Wrong Username":
                 text.text = msg;
