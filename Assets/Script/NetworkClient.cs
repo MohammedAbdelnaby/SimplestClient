@@ -27,6 +27,12 @@ public class NetworkClient : MonoBehaviour
 
     [SerializeField]
     private TMP_InputField PasswordInputField;
+
+    [SerializeField]
+    private TMP_InputField CreateRoomInputField;
+
+    [SerializeField]
+    private TMP_InputField JoinRoomInputField;
     [SerializeField]
     private Toggle SignUpToggle;
 
@@ -45,6 +51,12 @@ public class NetworkClient : MonoBehaviour
     public void SendLogIn()
     {
         SendMessageToHost(SignUpToggle.isOn + "," + LoginInputField.text + "," + PasswordInputField.text);
+        UpdateNetworkConnection();
+    }
+
+    public void CreateRoom()
+    {
+        SendMessageToHost("Create," + CreateRoomInputField.text);
         UpdateNetworkConnection();
     }
 
