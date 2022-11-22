@@ -36,6 +36,8 @@ public class NetworkClient : MonoBehaviour
     [SerializeField]
     private Toggle SignUpToggle;
 
+    [SerializeField]
+    private TMP_Text GameRoomName;
     // Start is called before the first frame update
     void Start()
     {
@@ -57,6 +59,18 @@ public class NetworkClient : MonoBehaviour
     public void CreateRoom()
     {
         SendMessageToHost("Create," + CreateRoomInputField.text);
+        UpdateNetworkConnection();
+    }
+
+    public void JoinRoom()
+    {
+        SendMessageToHost("Join," + JoinRoomInputField.text);
+        UpdateNetworkConnection();
+    }
+
+    public void LeaveRoom()
+    {
+        SendMessageToHost("Leave," + ((CreateRoomInputField.text == "") ? CreateRoomInputField.text : JoinRoomInputField.text));
         UpdateNetworkConnection();
     }
 
@@ -154,6 +168,14 @@ public class NetworkClient : MonoBehaviour
                 break;
             case "Wrong Password":
                 text.text = msg;
+                break;
+            case "Room Created":
+                stateMachine.Instance.Scene = 5;
+                GameRoomName.text = CreateRoomInputField.text + " Room";
+                break;
+            case "Joined":
+                stateMachine.Instance.Scene = 5;
+                GameRoomName.text = JoinRoomInputField.text + " Room";
                 break;
             default:
                 break;
