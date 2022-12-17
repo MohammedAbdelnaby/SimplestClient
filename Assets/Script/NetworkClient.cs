@@ -25,7 +25,6 @@ public class NetworkClient : MonoBehaviour
     byte error;
     bool isConnected = false;
     int ourClientID;
-    int OpponentID;
     [SerializeField]
     private TMP_Text text;
 
@@ -75,8 +74,10 @@ public class NetworkClient : MonoBehaviour
 
     public void CreateRoom()
     {
+        GameRoomName = CreateRoomInputField.text;
         SendMessageToHost("Create," + CreateRoomInputField.text);
         UpdateNetworkConnection();
+        UpdateGame();
     }
 
     public void JoinRoom()
@@ -84,6 +85,7 @@ public class NetworkClient : MonoBehaviour
         SendMessageToHost("Join," + JoinRoomInputField.text);
         UpdateNetworkConnection();
     }
+    
 
     public void LeaveRoom()
     {
@@ -94,6 +96,12 @@ public class NetworkClient : MonoBehaviour
     public void PlayTile()
     {
         SendMessageToHost("PlayTile,"+ GameRoomName + "," + gameManager.GameCurrentState());
+        UpdateNetworkConnection();
+    }
+
+    public void UpdateGame()
+    {
+        SendMessageToHost("Update Game," + GameRoomName);
         UpdateNetworkConnection();
     }
 
@@ -131,7 +139,6 @@ public class NetworkClient : MonoBehaviour
 
     private void Connect()
     {
-
         if (!isConnected)
         {
             Debug.Log("Attempting to create connection");
@@ -194,14 +201,15 @@ public class NetworkClient : MonoBehaviour
                 text.text = msg;
                 break;
             case "Room Created":
-                GameRoomName = CreateRoomInputField.text;
                 GameRoomText.text = GameRoomName + " Room";
                 stateMachine.Instance.Scene = 5;
+                gameManager.IsPlayerturn = false;
                 XOrO = "X";
                 break;
             case "Joined":
                 GameRoomName = JoinRoomInputField.text;
                 GameRoomText.text = GameRoomName + " Room";
+                gameManager.IsPlayerturn = false;
                 stateMachine.Instance.Scene = 5;
                 XOrO = "O";
                 break;
@@ -209,6 +217,9 @@ public class NetworkClient : MonoBehaviour
                 stateMachine.Instance.Scene = 2;
                 GameRoomName = "";
                 XOrO = "";
+                break;
+            case "Is player turn":
+                gameManager.IsPlayerturn = true;
                 break;
             default:
                 break;

@@ -15,18 +15,23 @@ public class GameManager : MonoBehaviour
     {
         InitiText();
     }
-
-    // Update is called once per frame
-    void Update()
+    private void Update()
     {
-        
+        UpdateButtons();
     }
-
     public void UpdateButtons()
     {
         for (int i = 0; i < buttons.Count; i++)
         {
-            buttons[i].interactable = IsPlayerturn;
+            if (ButtonText[i].text == " ")
+            {
+                buttons[i].interactable = IsPlayerturn;
+            }
+            else if(ButtonText[i].text != " ")
+            {
+                buttons[i].interactable = false;
+            }
+
         }
     }
 
@@ -73,7 +78,6 @@ public class GameManager : MonoBehaviour
                     break;
             }
         }
-        IsPlayerturn = true;
     }
 
     private void InitiText()
