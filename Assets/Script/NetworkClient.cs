@@ -6,8 +6,15 @@ using UnityEngine;
 using UnityEngine.Networking;
 using UnityEngine.UI;
 
+
 public class NetworkClient : MonoBehaviour
 {
+    /*
+     * TO DO LIST:
+     * - Add update state to server.
+     * - Add winning and losing
+     * - Add Leaving will update the game
+     */
 
     int connectionID;
     int maxConnections = 1000;
@@ -18,7 +25,7 @@ public class NetworkClient : MonoBehaviour
     byte error;
     bool isConnected = false;
     int ourClientID;
-
+    int OpponentID;
     [SerializeField]
     private TMP_Text text;
 
@@ -33,11 +40,21 @@ public class NetworkClient : MonoBehaviour
 
     [SerializeField]
     private TMP_InputField JoinRoomInputField;
+
     [SerializeField]
     private Toggle SignUpToggle;
 
+    [SerializeReference]
+    private TMP_Text GameRoomText;
+
     [SerializeField]
-    private TMP_Text GameRoomName;
+    private string GameRoomName;
+
+    private string XOrO;
+    public GameManager gameManager;
+
+    public string XOrOString { get => XOrO; set => XOrO = value; }
+
     // Start is called before the first frame update
     void Start()
     {
@@ -70,7 +87,13 @@ public class NetworkClient : MonoBehaviour
 
     public void LeaveRoom()
     {
-        SendMessageToHost("Leave," + ((CreateRoomInputField.text == "") ? CreateRoomInputField.text : JoinRoomInputField.text));
+        SendMessageToHost("Leave," + GameRoomName);
+        UpdateNetworkConnection();
+    }
+
+    public void PlayTile()
+    {
+        SendMessageToHost("PlayTile,"+ GameRoomName + "," + gameManager.GameCurrentState());
         UpdateNetworkConnection();
     }
 
@@ -141,6 +164,7 @@ public class NetworkClient : MonoBehaviour
 
     public void SendMessageToHost(string msg)
     {
+        Debug.Log(msg);
         byte[] buffer = Encoding.Unicode.GetBytes(msg);
         NetworkTransport.Send(hostID, connectionID, reliableChannelID, buffer, msg.Length * sizeof(char), out error);
     }
@@ -170,12 +194,31 @@ public class NetworkClient : MonoBehaviour
                 text.text = msg;
                 break;
             case "Room Created":
+                GameRoomName = CreateRoomInputField.text;
+                GameRoomText.text = GameRoomName + " Room";
                 stateMachine.Instance.Scene = 5;
-                GameRoomName.text = CreateRoomInputField.text + " Room";
+                XOrO = "X";
                 break;
             case "Joined":
+                GameRoomName = JoinRoomInputField.text;
+                GameRoomText.text = GameRoomName + " Room";
                 stateMachine.Instance.Scene = 5;
-                GameRoomName.text = JoinRoomInputField.text + " Room";
+                XOrO = "O";
+                break;
+            case "Leave":
+                stateMachine.Instance.Scene = 2;
+                GameRoomName = "";
+                XOrO = "";
+                break;
+            default:
+                break;
+        }
+
+        string[] msgSplit = msg.Split(',');
+        switch (msgSplit[0])
+        {
+            case "Opponent":
+                gameManager.UpdateGame(msgSplit[1]);
                 break;
             default:
                 break;
@@ -186,6 +229,4 @@ public class NetworkClient : MonoBehaviour
     {
         return isConnected;
     }
-
-
 }
