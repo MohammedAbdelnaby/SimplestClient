@@ -4,20 +4,38 @@ using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
 
+static class Wincondition
+{
+    public static int[,] winConidtion = new int[,] { 
+        {0,1,2}, // 1st row ->                     |            |
+        {3,4,5}, // 2st row ->                 0   |     1      |    2
+        {6,7,8}, // 3st row ->              -------+------------+--------
+        {0,3,6}, // 1st colom ^                    |            |
+        {1,4,7}, // 2st colom ^               3    |     4      |    5
+        {3,5,8}, // 3st colom ^                    |            |
+        {0,4,8}, // Diagonal right-down     -------+------------+--------
+        {2,4,6}, // Diagonal left-down        6    |      7     |    8
+    };           //                                |            |
+}
+
 public class GameManager : MonoBehaviour
 {
     public bool IsPlayerturn;
     public List<Button> buttons;
     public List<TMP_Text> ButtonText;
+    private NetworkClient Network;
+    private int[,] WinConditions = Wincondition.winConidtion;
 
     // Start is called before the first frame update
     void Start()
     {
         InitiText();
+        Network = FindObjectOfType<NetworkClient>();
     }
     private void Update()
     {
         UpdateButtons();
+        CheckWinCondition();
     }
     public void UpdateButtons()
     {
@@ -31,7 +49,6 @@ public class GameManager : MonoBehaviour
             {
                 buttons[i].interactable = false;
             }
-
         }
     }
 
@@ -61,22 +78,25 @@ public class GameManager : MonoBehaviour
     public void UpdateGame(string board)
     {
         string[] Tile = board.Split(';');
-        for (int i = 0; i < ButtonText.Count; i++)
+        if (board != "")
         {
-            switch (Tile[i])
+            for (int i = 0; i < ButtonText.Count; i++)
             {
-                case "X":
-                    ButtonText[i].text = "X";
-                    break;
-                case "O":
-                    ButtonText[i].text = "O";
-                    break;
-                case "N":
-                    ButtonText[i].text = " ";
-                    break;
-                default:
-                    break;
-            }
+                switch (Tile[i])
+                {
+                    case "X":
+                        ButtonText[i].text = "X";
+                        break;
+                    case "O":
+                        ButtonText[i].text = "O";
+                        break;
+                    case "N":
+                        ButtonText[i].text = " ";
+                        break;
+                    default:
+                        break;
+                }
+            } 
         }
     }
 
@@ -85,6 +105,28 @@ public class GameManager : MonoBehaviour
         foreach (Button button in buttons)
         {
             ButtonText.Add(button.GetComponentInChildren<TMP_Text>());
+        }
+    }
+
+    public void CheckWinCondition()
+    {
+        for (int condition = 0; condition < WinConditions.GetLength(0); condition++)
+        {
+            if (ButtonText[WinConditions[condition, 0]].text == Network.XOrOString &&
+                ButtonText[WinConditions[condition, 1]].text == Network.XOrOString &&
+                ButtonText[WinConditions[condition, 2]].text == Network.XOrOString)
+            {
+                Network.SendWin();
+                ResetBoard();
+            }
+        }
+    }
+
+    public void ResetBoard()
+    {
+        foreach (TMP_Text text in ButtonText)
+        {
+            text.text = " ";
         }
     }
 }

@@ -22,6 +22,10 @@ public class stateMachine : MonoBehaviour
     private GameObject JoinRoomScene;   // 4
     [SerializeField]
     private GameObject GameScene;       // 5
+    [SerializeField]
+    private GameObject WinScene;        // 6
+    [SerializeField]
+    private GameObject LostScene;       // 7
 
     public int Scene
     {
@@ -80,6 +84,14 @@ public class stateMachine : MonoBehaviour
                 DeactivateCurrentScene();
                 GameScene.SetActive(true);
                 break;
+            case 6:
+                DeactivateCurrentScene();
+                WinScene.SetActive(true);
+                break;
+            case 7:
+                DeactivateCurrentScene();
+                LostScene.SetActive(true);
+                break;
             default:
                 break;
         }
@@ -106,6 +118,12 @@ public class stateMachine : MonoBehaviour
                 break;
             case 5:
                 GameScene.SetActive(false);
+                break;
+            case 6:
+                WinScene.SetActive(false);
+                break;
+            case 7:
+                LostScene.SetActive(false);
                 break;
             default:
                 break;

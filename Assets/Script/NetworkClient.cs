@@ -85,7 +85,13 @@ public class NetworkClient : MonoBehaviour
         SendMessageToHost("Join," + JoinRoomInputField.text);
         UpdateNetworkConnection();
     }
-    
+
+    public void SendWin()
+    {
+        stateMachine.Instance.Scene = 6;
+        SendMessageToHost("Won," + GameRoomName);
+        UpdateNetworkConnection();
+    }
 
     public void LeaveRoom()
     {
@@ -216,10 +222,19 @@ public class NetworkClient : MonoBehaviour
             case "Leave":
                 stateMachine.Instance.Scene = 2;
                 GameRoomName = "";
+                gameManager.ResetBoard();
                 XOrO = "";
                 break;
             case "Is player turn":
                 gameManager.IsPlayerturn = true;
+                break;
+            case "Player Lost":
+                stateMachine.Instance.Scene = 7;
+                gameManager.ResetBoard();
+                break;
+            case "Player Won":
+                stateMachine.Instance.Scene = 6;
+                gameManager.ResetBoard();
                 break;
             default:
                 break;
